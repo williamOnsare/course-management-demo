@@ -7,7 +7,7 @@ import type { Course, CourseFormData } from "./types/course";
 function App() {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const { createCourse, updateCourse } = useCourses();
+  const { createCourse, updateCourse, deleteCourse } = useCourses();
 
   const handleEditCourse = (course: Course) => {
     setEditingCourse(course);
@@ -38,10 +38,23 @@ function App() {
     setEditingCourse(null);
   };
 
-  const handleDeleteCourse = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this course?")) {
-      // Delete functionality will be implemented in next phase
-      console.log("Delete course:", id);
+  const handleDeleteCourse = async (id: string) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this course? This action cannot be undone.",
+      )
+    ) {
+      try {
+        const success = await deleteCourse(id);
+        if (success) {
+          console.log("Course deleted successfully");
+        } else {
+          alert("Failed to delete course. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error deleting course:", error);
+        alert("An error occurred while deleting the course.");
+      }
     }
   };
 
