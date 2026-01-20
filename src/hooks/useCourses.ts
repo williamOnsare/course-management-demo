@@ -1,97 +1,69 @@
-import { useState, useEffect } from "react";
-import type { Course, CourseFormData } from "../types/course";
-import { courseService } from "../services/courseService";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { courseApi } from '@/services/courseApi';
+import type { CourseRequest, CourseResponse } from '@/types/course';
+import { toast } from 'sonner';
 
 export const useCourses = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchCourses = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await courseService.getAllCourses();
-      setCourses(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const coursesQuery = useQuery({
+    queryKey: ['courses'],
+    queryFn: () => courseApi.getAll(),
+  });
 
-  const createCourse = async (
-    courseData: CourseFormData,
-  ): Promise<Course | null> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const newCourse = await courseService.createCourse(courseData);
-      setCourses((prev) => {
-        if (!Array.isArray(prev)) return [newCourse];
-        return [...prev, newCourse];
-      });
-      return newCourse;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create course");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
+  const createMutation = useMutation({
+    mutationFn: (course: CourseRequest) => courseApi.create(course),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast.success('Course created successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to create course: ${error.message}`);
+    },
+  });
 
-  const updateCourse = async (
-    id: number,
-    courseData: CourseFormData,
-  ): Promise<Course | null> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const updatedCourse = await courseService.updateCourse(id, courseData);
-      setCourses((prev) => {
-        if (!Array.isArray(prev)) return [updatedCourse];
-        return prev.map((course) =>
-          course.id === id ? updatedCourse : course,
-        );
-      });
-      return updatedCourse;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update course");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
+  const updateMutation = useMutation({
+    mutationFn: ({ id, course }: { id: number; course: CourseRequest }) =>
+      courseApi.update(id, course),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast.success('Course updated successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update course: ${error.message}`);
+    },
+  });
 
-  const deleteCourse = async (id: number): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-    try {
-      await courseService.deleteCourse(id);
-      setCourses((prev) => {
-        if (!Array.isArray(prev)) return [];
-        return prev.filter((course) => course.id !== id);
-      });
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete course");
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCourses();
-  }, []);
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => courseApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast.success('Course deleted successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to delete course: ${error.message}`);
+    },
+  });
 
   return {
-    courses,
-    loading,
-    error,
-    fetchCourses,
-    createCourse,
-    updateCourse,
-    deleteCourse,
+    courses: coursesQuery.data?.content ?? [],
+    isLoading: coursesQuery.isLoading,
+    isError: coursesQuery.isError,
+    error: coursesQuery.error,
+    refetch: coursesQuery.refetch,
+    createCourse: createMutation.mutateAsync,
+    updateCourse: updateMutation.mutateAsync,
+    deleteCourse: deleteMutation.mutateAsync,
+    isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    isDeleting: deleteMutation.isPending,
   };
+};
+
+export const useCourse = (id: number) => {
+  return useQuery({
+    queryKey: ['course', id],
+    queryFn: () => courseApi.getById(id),
+    enabled: !!id,
+  });
 };
