@@ -1,6 +1,8 @@
 import { useCourses } from "../hooks/useCourses";
 import { CourseCard } from "./CourseCard";
+import { CourseFilters } from "./CourseFilters";
 import type { Course } from "../types/course";
+import { useMemo, useState } from "react";
 
 interface CourseListProps {
   onEditCourse: (course: Course) => void;
@@ -12,6 +14,24 @@ export const CourseList = ({
   onDeleteCourse,
 }: CourseListProps) => {
   const { courses, loading, error, fetchCourses } = useCourses();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "published" | "draft"
+  >("all");
+
+  const filteredCourses = useMemo(() => {
+    return courses.filter((course) => {
+      const matchesSearch = course.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesFilter =
+        filterStatus === "all" ||
+        (filterStatus === "published" && course.published) ||
+        (filterStatus === "draft" && !course.published);
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [courses, searchTerm, filterStatus]);
 
   if (loading) {
     return (
@@ -55,22 +75,40 @@ export const CourseList = ({
     );
   }
 
-  if (courses.length === 0) {
+  if (filteredCourses.length === 0 && !loading) {
     return (
-      <div className="text-center py-12">
-        <div className="text-gray-500 text-lg mb-4">No courses found</div>
-        <p className="text-gray-400">Create your first course to get started</p>
+      <div>
+        <CourseFilters
+          onSearchChange={setSearchTerm}
+          onFilterChange={setFilterStatus}
+          searchValue={searchTerm}
+          filterValue={filterStatus}
+        />
+        <div className="text-center py-12">
+          <div className="text-gray-500 text-lg mb-4">No courses found</div>
+          <p className="text-gray-400">
+            {searchTerm || filterStatus !== "all"
+              ? "Try adjusting your search or filters"
+              : "Create your first course to get started"}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div>
+      <CourseFilters
+        onSearchChange={setSearchTerm}
+        onFilterChange={setFilterStatus}
+        searchValue={searchTerm}
+        filterValue={filterStatus}
+      />
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        Courses ({courses.length})
+        Courses ({filteredCourses.length})
       </h2>
       <div className="space-y-4">
-        {courses.map((course) => (
+        {filteredCourses.map((course) => (
           <CourseCard
             key={course.id}
             course={course}

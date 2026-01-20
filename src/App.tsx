@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CourseList } from "./components/CourseList";
 import { CourseForm } from "./components/CourseForm";
+import { Notification } from "./components/Notification";
 import { useCourses } from "./hooks/useCourses";
 import type { Course, CourseFormData } from "./types/course";
 
 function App() {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const { createCourse, updateCourse, deleteCourse } = useCourses();
 
   const handleEditCourse = (course: Course) => {
@@ -23,13 +28,25 @@ function App() {
     try {
       if (editingCourse) {
         await updateCourse(editingCourse.id, courseData);
+        setNotification({
+          message: "Course updated successfully!",
+          type: "success",
+        });
       } else {
         await createCourse(courseData);
+        setNotification({
+          message: "Course created successfully!",
+          type: "success",
+        });
       }
       setShowForm(false);
       setEditingCourse(null);
     } catch (error) {
       console.error("Error saving course:", error);
+      setNotification({
+        message: "Failed to save course. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -47,19 +64,47 @@ function App() {
       try {
         const success = await deleteCourse(id);
         if (success) {
-          console.log("Course deleted successfully");
+          setNotification({
+            message: "Course deleted successfully!",
+            type: "success",
+          });
         } else {
-          alert("Failed to delete course. Please try again.");
+          setNotification({
+            message: "Failed to delete course. Please try again.",
+            type: "error",
+          });
         }
       } catch (error) {
         console.error("Error deleting course:", error);
-        alert("An error occurred while deleting the course.");
+        setNotification({
+          message: "An error occurred while deleting the course.",
+          type: "error",
+        });
       }
     }
   };
 
+  const clearNotification = () => {
+    setNotification(null);
+  };
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(clearNotification, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={clearNotification}
+        />
+      )}
+
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8">
           <div className="flex justify-between items-center">
