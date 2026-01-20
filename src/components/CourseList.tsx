@@ -20,6 +20,9 @@ export const CourseList = ({
   >("all");
 
   const filteredCourses = useMemo(() => {
+    if (!Array.isArray(courses)) {
+      return [];
+    }
     return courses.filter((course) => {
       const matchesSearch = course.title
         .toLowerCase()

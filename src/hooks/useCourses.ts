@@ -27,7 +27,10 @@ export const useCourses = () => {
     setError(null);
     try {
       const newCourse = await courseService.createCourse(courseData);
-      setCourses((prev) => [...prev, newCourse]);
+      setCourses((prev) => {
+        if (!Array.isArray(prev)) return [newCourse];
+        return [...prev, newCourse];
+      });
       return newCourse;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create course");
@@ -45,9 +48,12 @@ export const useCourses = () => {
     setError(null);
     try {
       const updatedCourse = await courseService.updateCourse(id, courseData);
-      setCourses((prev) =>
-        prev.map((course) => (course.id === id ? updatedCourse : course)),
-      );
+      setCourses((prev) => {
+        if (!Array.isArray(prev)) return [updatedCourse];
+        return prev.map((course) =>
+          course.id === id ? updatedCourse : course,
+        );
+      });
       return updatedCourse;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update course");
@@ -62,7 +68,10 @@ export const useCourses = () => {
     setError(null);
     try {
       await courseService.deleteCourse(id);
-      setCourses((prev) => prev.filter((course) => course.id !== id));
+      setCourses((prev) => {
+        if (!Array.isArray(prev)) return [];
+        return prev.filter((course) => course.id !== id);
+      });
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete course");
