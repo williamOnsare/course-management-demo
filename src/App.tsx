@@ -96,7 +96,7 @@ function App() {
   }, [notification]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {notification && (
         <Notification
           message={notification.message}
@@ -106,19 +106,36 @@ function App() {
       )}
 
       <div className="container mx-auto px-4 py-8">
-        <header className="mb-8">
-          <div className="flex justify-between items-center">
+        <header className="mb-10">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-3">
                 Course Management
               </h1>
-              <p className="text-gray-600">Manage your courses with ease</p>
+              <p className="text-gray-600 text-lg max-w-2xl">
+                Create, manage, and organize your educational content with ease
+              </p>
             </div>
             <button
               onClick={handleCreateCourse}
-              className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 font-semibold shadow-lg transform hover:scale-105"
             >
-              Create New Course
+              <span className="flex items-center gap-3">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0 0V6m0 6a2 2 0 100 4 2 2 0 000-4z"
+                  />
+                </svg>
+                Create New Course
+              </span>
             </button>
           </div>
         </header>
