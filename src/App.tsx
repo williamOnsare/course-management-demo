@@ -55,7 +55,7 @@ function App() {
     setEditingCourse(null);
   };
 
-  const handleDeleteCourse = async (id: string) => {
+  const handleDeleteCourse = async (id: number) => {
     if (
       window.confirm(
         "Are you sure you want to delete this course? This action cannot be undone.",

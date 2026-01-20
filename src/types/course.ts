@@ -1,8 +1,10 @@
 export interface Course {
-  id: string;
+  id: number;
   title: string;
   description: string;
   published: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CourseFormData {

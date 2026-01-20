@@ -13,7 +13,7 @@ const api = axios.create({
 export const courseService = {
   async getAllCourses(): Promise<Course[]> {
     try {
-      const response = await api.get("/");
+      const response = await api.get("/api/courses");
       return response.data;
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -21,9 +21,9 @@ export const courseService = {
     }
   },
 
-  async getCourseById(id: string): Promise<Course> {
+  async getCourseById(id: number): Promise<Course> {
     try {
-      const response = await api.get(`/${id}`);
+      const response = await api.get(`/api/courses/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching course:", error);
@@ -33,7 +33,7 @@ export const courseService = {
 
   async createCourse(courseData: CourseFormData): Promise<Course> {
     try {
-      const response = await api.post("/", courseData);
+      const response = await api.post("/api/courses", courseData);
       return response.data;
     } catch (error) {
       console.error("Error creating course:", error);
@@ -41,9 +41,9 @@ export const courseService = {
     }
   },
 
-  async updateCourse(id: string, courseData: CourseFormData): Promise<Course> {
+  async updateCourse(id: number, courseData: CourseFormData): Promise<Course> {
     try {
-      const response = await api.put(`/${id}`, courseData);
+      const response = await api.put(`/api/courses/${id}`, courseData);
       return response.data;
     } catch (error) {
       console.error("Error updating course:", error);
@@ -51,9 +51,9 @@ export const courseService = {
     }
   },
 
-  async deleteCourse(id: string): Promise<void> {
+  async deleteCourse(id: number): Promise<void> {
     try {
-      await api.delete(`/${id}`);
+      await api.delete(`/api/courses/${id}`);
     } catch (error) {
       console.error("Error deleting course:", error);
       throw new Error("Failed to delete course");

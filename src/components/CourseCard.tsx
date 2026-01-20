@@ -3,7 +3,7 @@ import type { Course } from "../types/course";
 interface CourseCardProps {
   course: Course;
   onEdit: (course: Course) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 }
 
 export const CourseCard = ({ course, onEdit, onDelete }: CourseCardProps) => {

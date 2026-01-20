@@ -38,7 +38,7 @@ export const useCourses = () => {
   };
 
   const updateCourse = async (
-    id: string,
+    id: number,
     courseData: CourseFormData,
   ): Promise<Course | null> => {
     setLoading(true);
@@ -57,7 +57,7 @@ export const useCourses = () => {
     }
   };
 
-  const deleteCourse = async (id: string): Promise<boolean> => {
+  const deleteCourse = async (id: number): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {

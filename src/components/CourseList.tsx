@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 
 interface CourseListProps {
   onEditCourse: (course: Course) => void;
-  onDeleteCourse: (id: string) => void;
+  onDeleteCourse: (id: number) => void;
 }
 
 export const CourseList = ({
