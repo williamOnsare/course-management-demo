@@ -1,21 +1,28 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { courseApi } from '@/services/courseApi';
-import type { CourseRequest, CourseResponse } from '@/types/course';
-import { toast } from 'sonner';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { courseApi } from "@/services/courseApi";
+import type {
+  CourseRequest,
+  CourseResponse,
+  PublishedFilter,
+} from "@/types/course";
+import { toast } from "sonner";
 
-export const useCourses = () => {
+export const useCourses = (
+  search?: string,
+  publishedFilter?: PublishedFilter,
+) => {
   const queryClient = useQueryClient();
 
   const coursesQuery = useQuery({
-    queryKey: ['courses'],
-    queryFn: () => courseApi.getAll(),
+    queryKey: ["courses", search, publishedFilter],
+    queryFn: () => courseApi.getAll(0, 100, search, publishedFilter),
   });
 
   const createMutation = useMutation({
     mutationFn: (course: CourseRequest) => courseApi.create(course),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast.success('Course created successfully');
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
+      toast.success("Course created successfully");
     },
     onError: (error: Error) => {
       toast.error(`Failed to create course: ${error.message}`);
@@ -26,8 +33,8 @@ export const useCourses = () => {
     mutationFn: ({ id, course }: { id: number; course: CourseRequest }) =>
       courseApi.update(id, course),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast.success('Course updated successfully');
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
+      toast.success("Course updated successfully");
     },
     onError: (error: Error) => {
       toast.error(`Failed to update course: ${error.message}`);
@@ -37,8 +44,8 @@ export const useCourses = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => courseApi.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast.success('Course deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
+      toast.success("Course deleted successfully");
     },
     onError: (error: Error) => {
       toast.error(`Failed to delete course: ${error.message}`);
@@ -62,7 +69,7 @@ export const useCourses = () => {
 
 export const useCourse = (id: number) => {
   return useQuery({
-    queryKey: ['course', id],
+    queryKey: ["course", id],
     queryFn: () => courseApi.getById(id),
     enabled: !!id,
   });

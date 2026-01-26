@@ -15,10 +15,25 @@ const api = axios.create({
 });
 
 export const courseApi = {
-  // Get all courses with optional pagination
-  getAll: async (page = 0, size = 100): Promise<PagedCourseResponse> => {
+  // Get all courses with optional pagination, search, and filters
+  getAll: async (
+    page = 0,
+    size = 100,
+    search?: string,
+    publishedFilter?: "all" | "published" | "unpublished",
+  ): Promise<PagedCourseResponse> => {
+    const params: any = { page, size };
+
+    if (search) {
+      params.title = search.trim();
+    }
+
+    if (publishedFilter && publishedFilter !== "all") {
+      params.published = publishedFilter === "published";
+    }
+
     const response = await api.get<PagedCourseResponse>("/courses", {
-      params: { page, size },
+      params,
     });
     return response.data;
   },

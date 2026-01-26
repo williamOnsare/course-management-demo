@@ -1,41 +1,40 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { CourseCard } from '@/components/courses/CourseCard';
-import { CourseCardSkeleton } from '@/components/courses/CourseCardSkeleton';
-import { FilterBar } from '@/components/courses/FilterBar';
-import { DeleteCourseDialog } from '@/components/courses/DeleteCourseDialog';
-import { EmptyState } from '@/components/courses/EmptyState';
-import { ErrorState } from '@/components/courses/ErrorState';
-import { useCourses } from '@/hooks/useCourses';
-import type { CourseResponse, PublishedFilter } from '@/types/course';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CourseCard } from "@/components/courses/CourseCard";
+import { CourseCardSkeleton } from "@/components/courses/CourseCardSkeleton";
+import { FilterBar } from "@/components/courses/FilterBar";
+import { DeleteCourseDialog } from "@/components/courses/DeleteCourseDialog";
+import { EmptyState } from "@/components/courses/EmptyState";
+import { ErrorState } from "@/components/courses/ErrorState";
+import { useCourses } from "@/hooks/useCourses";
+import { useCourseFilters } from "@/hooks/useCourseFilters";
+import type { CourseResponse } from "@/types/course";
 
 const CourseList = () => {
   const navigate = useNavigate();
-  const { courses, isLoading, isError, error, refetch, deleteCourse, isDeleting } =
-    useCourses();
+  const [courseToDelete, setCourseToDelete] = useState<CourseResponse | null>(
+    null,
+  );
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [publishedFilter, setPublishedFilter] = useState<PublishedFilter>('all');
-  const [courseToDelete, setCourseToDelete] = useState<CourseResponse | null>(null);
+  const {
+    filters,
+    debouncedSearch,
+    updateSearch,
+    updatePublishedFilter,
+    hasActiveFilters,
+  } = useCourseFilters();
 
-  const filteredCourses = useMemo(() => {
-    return courses.filter((course) => {
-      const matchesSearch = course.title
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-
-      const matchesPublished =
-        publishedFilter === 'all' ||
-        (publishedFilter === 'published' && course.published) ||
-        (publishedFilter === 'unpublished' && !course.published);
-
-      return matchesSearch && matchesPublished;
-    });
-  }, [courses, searchQuery, publishedFilter]);
-
-  const hasFilters = searchQuery !== '' || publishedFilter !== 'all';
+  const {
+    courses,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    deleteCourse,
+    isDeleting,
+  } = useCourses(debouncedSearch, filters.publishedFilter);
 
   const handleDeleteClick = (course: CourseResponse) => {
     setCourseToDelete(course);
@@ -63,7 +62,7 @@ const CourseList = () => {
               Manage your course catalog
             </p>
           </div>
-          <Button onClick={() => navigate('/courses/new')}>
+          <Button onClick={() => navigate("/courses/new")}>
             <Plus className="h-4 w-4 mr-2" />
             Add Course
           </Button>
@@ -71,10 +70,10 @@ const CourseList = () => {
 
         {/* Filter Bar */}
         <FilterBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          publishedFilter={publishedFilter}
-          onPublishedFilterChange={setPublishedFilter}
+          searchQuery={filters.search}
+          onSearchChange={updateSearch}
+          publishedFilter={filters.publishedFilter}
+          onPublishedFilterChange={updatePublishedFilter}
         />
 
         {/* Content */}
@@ -86,11 +85,11 @@ const CourseList = () => {
           </div>
         ) : isError ? (
           <ErrorState message={error?.message} onRetry={refetch} />
-        ) : filteredCourses.length === 0 ? (
-          <EmptyState hasFilters={hasFilters} />
+        ) : courses.length === 0 ? (
+          <EmptyState hasFilters={hasActiveFilters} />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
+            {courses.map((course) => (
               <CourseCard
                 key={course.id}
                 course={course}
