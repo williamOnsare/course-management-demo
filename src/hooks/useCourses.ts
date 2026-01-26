@@ -7,16 +7,20 @@ import type {
 } from "@/types/course";
 import { toast } from "sonner";
 
-export const useCourses = (
+// Hook for fetching course list with search and filtering
+export const useCourseList = (
   search?: string,
   publishedFilter?: PublishedFilter,
 ) => {
-  const queryClient = useQueryClient();
-
-  const coursesQuery = useQuery({
+  return useQuery({
     queryKey: ["courses", search, publishedFilter],
     queryFn: () => courseApi.getAll(0, 100, search, publishedFilter),
   });
+};
+
+// Hook for course CRUD mutations
+export const useCourseMutations = () => {
+  const queryClient = useQueryClient();
 
   const createMutation = useMutation({
     mutationFn: (course: CourseRequest) => courseApi.create(course),
@@ -53,17 +57,30 @@ export const useCourses = (
   });
 
   return {
-    courses: coursesQuery.data?.content ?? [],
-    isLoading: coursesQuery.isLoading,
-    isError: coursesQuery.isError,
-    error: coursesQuery.error,
-    refetch: coursesQuery.refetch,
     createCourse: createMutation.mutateAsync,
     updateCourse: updateMutation.mutateAsync,
     deleteCourse: deleteMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
+  };
+};
+
+// Legacy hook for backward compatibility (combines both)
+export const useCourses = (
+  search?: string,
+  publishedFilter?: PublishedFilter,
+) => {
+  const coursesQuery = useCourseList(search, publishedFilter);
+  const mutations = useCourseMutations();
+
+  return {
+    courses: coursesQuery.data?.content ?? [],
+    isLoading: coursesQuery.isLoading,
+    isError: coursesQuery.isError,
+    error: coursesQuery.error,
+    refetch: coursesQuery.refetch,
+    ...mutations,
   };
 };
 

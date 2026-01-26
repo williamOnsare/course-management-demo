@@ -1,28 +1,34 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { CourseForm } from '@/components/courses/CourseForm';
-import { ErrorState } from '@/components/courses/ErrorState';
-import { useCourses, useCourse } from '@/hooks/useCourses';
-import type { CourseRequest } from '@/types/course';
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CourseForm } from "@/components/courses/CourseForm";
+import { ErrorState } from "@/components/courses/ErrorState";
+import { useCourseMutations, useCourse } from "@/hooks/useCourses";
+import type { CourseRequest } from "@/types/course";
 
 const EditCourse = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const courseId = parseInt(id || '0', 10);
+  const courseId = parseInt(id || "0", 10);
 
-  const { updateCourse, isUpdating } = useCourses();
-  const { data: course, isLoading, isError, error, refetch } = useCourse(courseId);
+  const { updateCourse, isUpdating } = useCourseMutations();
+  const {
+    data: course,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useCourse(courseId);
 
   const handleSubmit = async (data: CourseRequest) => {
     await updateCourse({ id: courseId, course: data });
-    navigate('/courses');
+    navigate("/courses");
   };
 
   const handleCancel = () => {
-    navigate('/courses');
+    navigate("/courses");
   };
 
   return (
@@ -32,7 +38,7 @@ const EditCourse = () => {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => navigate('/courses')}
+          onClick={() => navigate("/courses")}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Courses

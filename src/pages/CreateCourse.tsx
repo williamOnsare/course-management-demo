@@ -1,22 +1,22 @@
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CourseForm } from '@/components/courses/CourseForm';
-import { useCourses } from '@/hooks/useCourses';
-import type { CourseRequest } from '@/types/course';
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CourseForm } from "@/components/courses/CourseForm";
+import { useCourseMutations } from "@/hooks/useCourses";
+import type { CourseRequest } from "@/types/course";
 
 const CreateCourse = () => {
   const navigate = useNavigate();
-  const { createCourse, isCreating } = useCourses();
+  const { createCourse, isCreating } = useCourseMutations();
 
   const handleSubmit = async (data: CourseRequest) => {
     await createCourse(data);
-    navigate('/courses');
+    navigate("/courses");
   };
 
   const handleCancel = () => {
-    navigate('/courses');
+    navigate("/courses");
   };
 
   return (
@@ -26,7 +26,7 @@ const CreateCourse = () => {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => navigate('/courses')}
+          onClick={() => navigate("/courses")}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Courses
