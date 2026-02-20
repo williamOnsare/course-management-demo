@@ -1,9 +1,16 @@
-import { Edit, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import type { CourseResponse } from '@/types/course';
+import { Edit, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DateDisplay } from "@/components/ui/DateDisplay";
+import type { CourseResponse } from "@/types/course";
 
 interface CourseCardProps {
   course: CourseResponse;
@@ -22,18 +29,27 @@ export const CourseCard = ({ course, onDelete }: CourseCardProps) => {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg line-clamp-2">{course.title}</CardTitle>
-          <Badge variant={course.published ? 'default' : 'secondary'}>
-            {course.published ? 'Published' : 'Draft'}
+          <Badge variant={course.published ? "default" : "secondary"}>
+            {course.published ? "Published" : "Draft"}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="flex-1">
-        <p className="text-sm text-muted-foreground line-clamp-3">
+        <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
           {course.description}
         </p>
+        <DateDisplay
+          createdAt={course.createdAt}
+          updatedAt={course.updatedAt}
+        />
       </CardContent>
       <CardFooter className="pt-3 gap-2">
-        <Button variant="outline" size="sm" onClick={handleEdit} className="flex-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleEdit}
+          className="flex-1"
+        >
           <Edit className="h-4 w-4 mr-1" />
           Edit
         </Button>

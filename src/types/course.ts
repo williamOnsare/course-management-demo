@@ -11,6 +11,8 @@ export interface CourseResponse {
   title: string;
   description: string;
   published: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PagedCourseResponse {
@@ -42,4 +44,4 @@ export interface PagedCourseResponse {
   empty: boolean;
 }
 
-export type PublishedFilter = 'all' | 'published' | 'unpublished';
+export type PublishedFilter = "all" | "published" | "unpublished";
